@@ -1,0 +1,15 @@
+{
+  "name": "KUMO Official",
+  "extensions": [
+    {
+      "id": "open-movies",
+      "name": "Open Movies (Demo)",
+      "version": "1.0.0",
+      "author": "KUMO",
+      "description": "A demo source so you can try the player. Streams four openly licensed (CC BY) Blender Foundation films.",
+      "language": "en",
+      "manifest": "open-movies/manifest.json",
+      "icon": "open-movies/icon.svg"
+    }
+  ]
+}

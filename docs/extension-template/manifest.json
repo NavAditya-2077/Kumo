@@ -1,0 +1,27 @@
+{
+  "id": "my-source",
+  "name": "My Source",
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "type": "provider",
+  "author": "Your name",
+  "description": "One sentence about what this source offers.",
+  "language": "en",
+  "entry": "index.js",
+  "icon": "icon.svg",
+  "permissions": {
+    "network": ["api.example.com"]
+  },
+  "settings": [
+    {
+      "key": "quality",
+      "label": "Preferred quality",
+      "type": "select",
+      "default": "1080p",
+      "options": [
+        { "value": "1080p", "label": "1080p" },
+        { "value": "720p", "label": "720p" }
+      ]
+    }
+  ]
+}

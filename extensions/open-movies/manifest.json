@@ -1,0 +1,26 @@
+{
+  "id": "open-movies",
+  "name": "Open Movies (Demo)",
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "type": "provider",
+  "author": "KUMO",
+  "description": "A demo source so you can try the player. It plays four openly licensed (CC BY) Blender Foundation films for any title.",
+  "language": "en",
+  "entry": "index.js",
+  "icon": "icon.svg",
+  "permissions": { "network": [] },
+  "settings": [
+    {
+      "key": "prefer",
+      "label": "Preferred stream",
+      "type": "select",
+      "default": "mp4",
+      "options": [
+        { "value": "mp4", "label": "Direct MP4" },
+        { "value": "hls", "label": "Adaptive HLS (where available)" }
+      ],
+      "help": "HLS lets the player switch quality automatically; MP4 is the simplest and most compatible."
+    }
+  ]
+}

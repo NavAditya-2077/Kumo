@@ -1,0 +1,43 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Assemble site
+        run: |
+          mkdir -p _site/vendor
+          cp -r index.html sw.js manifest.webmanifest src styles assets extensions _site/
+          # hls.js is downloaded at deploy time (not committed). KUMO falls back to a CDN if this is missing.
+          npm pack hls.js@~1.5.0 --silent
+          tar -xzf hls.js-*.tgz package/dist/hls.min.js package/LICENSE
+          mv package/dist/hls.min.js _site/vendor/hls.min.js
+          mv package/LICENSE _site/vendor/hls.js.LICENSE
+          touch _site/.nojekyll
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - id: deployment
+        uses: actions/deploy-pages@v4

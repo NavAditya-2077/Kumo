@@ -1,0 +1,103 @@
+<!doctype html>
+<meta charset="utf-8">
+<!--
+  KUMO extension sandbox.
+
+  This page is loaded in an <iframe sandbox="allow-scripts"> (no allow-same-origin), so it has an opaque
+  origin: no localStorage, no cookies, no access to KUMO's DOM. The CSP below also blocks ALL network
+  access (fetch, XHR, WebSocket, images, frames, beacons). An extension's only way out is ctx.fetch(),
+  which asks the host page to fetch on its behalf, limited to the hosts in the extension's manifest.
+-->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval'">
+<title>KUMO extension sandbox</title>
+<script>
+'use strict';
+(function () {
+  var host = window.parent;
+  var post = function (m) { host.postMessage(Object.assign({ kumo: 1 }, m), '*'); };
+  var impl = null, settings = {}, seq = 0;
+  var waiting = new Map();
+
+  function rpc(op, args) {
+    return new Promise(function (resolve, reject) {
+      var id = ++seq;
+      waiting.set(id, { resolve: resolve, reject: reject });
+      post({ type: 'rpc', id: id, op: op, args: args });
+    });
+  }
+  function logger(level) {
+    return function () {
+      var text = Array.prototype.map.call(arguments, function (x) {
+        if (typeof x === 'string') return x;
+        try { return JSON.stringify(x); } catch (e) { return String(x); }
+      }).join(' ');
+      post({ type: 'log', level: level, text: text });
+    };
+  }
+
+  // What an extension receives as its second argument: ctx
+  var ctx = {
+    apiVersion: 1,
+    get settings() { return settings; },
+    log: logger('log'), warn: logger('warn'), error: logger('error'),
+    sleep: function (ms) { return new Promise(function (r) { setTimeout(r, Math.min(+ms || 0, 10000)); }); },
+    fetch: function (url, opts) {
+      opts = opts || {};
+      return rpc('fetch', { url: String(url), opts: { method: opts.method, headers: opts.headers, body: opts.body } }).then(function (r) {
+        return {
+          ok: r.ok, status: r.status, url: r.url, headers: r.headers,
+          text: function () { return Promise.resolve(r.body); },
+          json: function () { return Promise.resolve().then(function () { return JSON.parse(r.body); }); },
+          html: function () { return Promise.resolve(new DOMParser().parseFromString(r.body, 'text/html')); }
+        };
+      });
+    }
+  };
+
+  window.kumo = Object.freeze({
+    apiVersion: 1,
+    register: function (obj) {
+      if (impl) throw new Error('kumo.register() was called twice');
+      if (!obj || typeof obj !== 'object') throw new Error('kumo.register() needs an object');
+      impl = obj;
+    }
+  });
+
+  window.addEventListener('message', function (e) {
+    if (e.source !== host) return;
+    var m = e.data;
+    if (!m || m.kumo !== 1) return;
+
+    if (m.type === 'init') {
+      settings = m.settings || {};
+      try {
+        new Function('kumo', '"use strict";\n' + m.code)(window.kumo);
+        if (!impl) throw new Error('The extension never called kumo.register({...})');
+        post({ type: 'ready', methods: Object.keys(impl).filter(function (k) { return typeof impl[k] === 'function'; }) });
+      } catch (err) {
+        post({ type: 'init-error', message: String(err && err.message || err) });
+      }
+    } else if (m.type === 'settings') {
+      settings = m.settings || {};
+    } else if (m.type === 'call') {
+      Promise.resolve().then(function () {
+        var fn = impl && impl[m.method];
+        if (typeof fn !== 'function') throw new Error('The extension does not implement ' + m.method + '()');
+        return fn.call(impl, m.params, ctx);
+      }).then(function (value) {
+        try { post({ type: 'result', id: m.id, ok: true, value: value }); }
+        catch (err) { post({ type: 'result', id: m.id, ok: false, error: 'Result could not be sent (return plain JSON data only)' }); }
+      }, function (err) {
+        post({ type: 'result', id: m.id, ok: false, error: String(err && err.message || err) });
+      });
+    } else if (m.type === 'rpc-result') {
+      var w = waiting.get(m.id);
+      if (!w) return;
+      waiting.delete(m.id);
+      if (m.ok) w.resolve(m.value); else w.reject(new Error(m.error));
+    }
+  });
+
+  post({ type: 'boot' });
+})();
+</script>

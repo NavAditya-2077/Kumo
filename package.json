@@ -1,0 +1,12 @@
+{
+  "name": "kumo",
+  "version": "2.0.0",
+  "private": true,
+  "type": "module",
+  "description": "KUMO: an extension-based anime player that runs entirely in the browser.",
+  "license": "MIT",
+  "scripts": {
+    "dev": "npx --yes serve -l 8080 .",
+    "start": "npx --yes serve -l 8080 ."
+  }
+}
