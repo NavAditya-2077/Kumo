@@ -90,6 +90,14 @@ Your code runs in an iframe with an opaque origin and no network, storage, cooki
 
 Relative `manifest`/`icon` paths resolve against the `index.json` URL. GitHub "blob" links are converted to raw links automatically.
 
+## One-click "Add to KUMO" links
+
+Link to `https://YOUR_USERNAME.github.io/YOUR_REPO/#/extensions?add=<URL>` where `<URL>` is a (URL-encoded) manifest or repository index URL. KUMO shows what the extension can access and asks before adding anything. Example:
+
+```
+https://YOUR_USERNAME.github.io/Kumo/#/extensions?add=https%3A%2F%2Fexample.com%2Fmy-repo%2Findex.json
+```
+
 ## Responsibility
 
 KUMO is a player and does not review, host or endorse extensions. Write and use extensions only for content you are entitled to access.

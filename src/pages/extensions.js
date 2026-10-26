@@ -155,8 +155,24 @@ function addTab(el) {
   el.onclick = e => { const b = e.target.closest('[data-rm]'); if (b) { mgr.removeRepo(b.dataset.rm); render({ keepScroll: true }); } };
 }
 
+/** #/extensions?add=<url> : lets a website or README offer a one-click "add to KUMO" link. Always asks first. */
+async function handleAddLink(ctx) {
+  const raw = ctx.query.get('add');
+  if (!raw) return;
+  history.replaceState(null, '', '#/extensions');            // never re-prompt on refresh
+  try {
+    const d = await mgr.detect(raw);
+    if (d.kind === 'repo') {
+      if (await confirmDialog({ title: 'Add this repository?', message: `${d.name || d.url}\n${d.url}\nIt will appear under Browse. Nothing is installed until you choose to.`, confirm: 'Add repository' })) {
+        mgr.addRepo(d.url, d.name); toast('Repository added'); navigate('#/extensions?tab=browse', { replace: true });
+      }
+    } else if (await installFlow(d.url, '')) navigate('#/extensions?tab=installed', { replace: true });
+  } catch (err) { toast(`Couldn't add that link: ${err.message}`); }
+}
+
 export async function extensionsPage(ctx) {
   setSearchValue('');
+  if (ctx.query.get('add')) { await handleAddLink(ctx); return; }
   const tab = ['installed', 'browse', 'add'].includes(ctx.query.get('tab')) ? ctx.query.get('tab') : (mgr.list().length ? 'installed' : 'browse');
   const n = mgr.list().length;
   $('#page').innerHTML = `<section class="sec" style="padding-top:36px">
