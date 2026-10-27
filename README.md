@@ -48,7 +48,7 @@ Extension code is untrusted. KUMO runs each one inside a hidden, sandboxed ifram
 
 ## Write an extension
 
-See **[docs/EXTENSIONS.md](docs/EXTENSIONS.md)** and the copy-paste starting point in [`docs/extension-template/`](docs/extension-template/). The bundled demo in [`extensions/open-movies/`](extensions/open-movies/) is a complete working example.
+New to this? Start with **[docs/TUTORIAL.md](docs/TUTORIAL.md)**. Then see **[docs/EXTENSIONS.md](docs/EXTENSIONS.md)** and the copy-paste starting point in [`docs/extension-template/`](docs/extension-template/). The bundled demo in [`extensions/open-movies/`](extensions/open-movies/) is a complete working example.
 
 ## Project layout
 

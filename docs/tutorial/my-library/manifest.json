@@ -1,0 +1,21 @@
+{
+  "id": "my-library",
+  "name": "My Library",
+  "version": "1.0.0",
+  "apiVersion": 1,
+  "type": "provider",
+  "author": "You",
+  "description": "Plays videos from a catalogue.json that you host yourself.",
+  "language": "en",
+  "entry": "index.js",
+  "permissions": { "network": ["YOUR-NAME.github.io"] },
+  "settings": [
+    {
+      "key": "catalog",
+      "label": "Catalogue URL",
+      "type": "text",
+      "default": "https://YOUR-NAME.github.io/YOUR-REPO/catalog.json",
+      "help": "The address of your catalog.json. Its host must also be listed in permissions.network."
+    }
+  ]
+}

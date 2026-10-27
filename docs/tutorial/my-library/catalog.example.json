@@ -1,0 +1,12 @@
+{
+  "shows": [
+    {
+      "id": "big-buck-bunny",
+      "title": "Big Buck Bunny",
+      "year": 2008,
+      "episodes": [
+        { "number": 1, "title": "Big Buck Bunny", "video": "https://YOUR-NAME.github.io/YOUR-REPO/videos/bbb.mp4", "quality": "720p" }
+      ]
+    }
+  ]
+}
